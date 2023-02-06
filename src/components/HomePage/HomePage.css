@@ -1,0 +1,10 @@
+.market-stats {
+  display: flex;
+  justify-content: space-evenly;
+}
+
+.global-stats {
+  margin: 0 auto;
+  margin-top: 20px;
+  margin-bottom: 50px;
+}

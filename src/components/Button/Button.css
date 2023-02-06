@@ -1,0 +1,26 @@
+.Button {
+  background: var(--blue);
+  border: 2px solid var(--blue);
+  cursor: pointer;
+  border-radius: 5px;
+  padding: 3px 12px;
+  transition: 0.25s;
+  color: var(--white);
+  font-weight: 500;
+}
+
+.Button:hover {
+  background: transparent;
+  color: var(--black);
+}
+
+.Button--outline {
+  background: transparent;
+  color: var(--black);
+  transition: 0.25s;
+}
+
+.Button--outline:hover {
+  background: var(--blue);
+  color: var(--white);
+}
