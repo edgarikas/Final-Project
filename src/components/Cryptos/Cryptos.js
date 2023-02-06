@@ -19,6 +19,7 @@ function Cryptos({
   //const [cryptoCount, setCryptoCount] = useState(100);
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [cryptoCurrencies, setCryptocurrencies] = useState();
 
@@ -46,7 +47,7 @@ function Cryptos({
       const resultData = await response.json();
       setData(resultData);
     } catch (error) {
-      console.log(error);
+      setError(true);
     } finally {
       setLoading(false);
     }
@@ -65,6 +66,10 @@ function Cryptos({
 
   if (loading) {
     return <Loader />;
+  }
+
+  if (error) {
+    return <h1>Something is wrong.. x)</h1>;
   }
 
   return (

@@ -10,6 +10,7 @@ import Loader from '../Loader';
 function HomePage({ favorites, onToggleFavorite }) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
+
   const globalStats = data?.data?.stats;
 
   const options = {
@@ -43,6 +44,7 @@ function HomePage({ favorites, onToggleFavorite }) {
   if (loading) {
     return <Loader />;
   }
+
   return (
     <>
       {loading && <h1>Loading</h1>}

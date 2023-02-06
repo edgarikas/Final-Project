@@ -7,6 +7,7 @@ import Cryptos from './components/Cryptos/Cryptos';
 import CoinDetails from './components/CoinDetails/CoinDetails';
 import News from './components/News/News';
 import Favorites from './components/Favorites/Favorites';
+import store from './state/state';
 import { useState } from 'react';
 
 import { FAVORITESCOINS_STORAGE_KEY } from './constants';
