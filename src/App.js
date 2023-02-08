@@ -8,6 +8,7 @@ import CoinDetails from './components/CoinDetails/CoinDetails';
 import News from './components/News/News';
 import Favorites from './components/Favorites/Favorites';
 import store from './state/state';
+import { Provider } from 'react-redux';
 import { useState } from 'react';
 
 import { FAVORITESCOINS_STORAGE_KEY } from './constants';
@@ -43,54 +44,58 @@ function App() {
   };
 
   return (
-    <div className='App'>
-      <BrowserRouter>
-        <Navbar />
-        <Routes>
-          <Route
-            path='/'
-            element={
-              <HomePage
-                onToggleFavorite={onToggleFavorite}
-                favorites={favoritesCoins}
-              />
-            }
-          ></Route>
-          <Route
-            path='/cryptos'
-            element={
-              <Cryptos
-                onToggleFavorite={onToggleFavorite}
-                changeCryptoCount={changeCryptoCount}
-                cryptoCount={cryptoCount}
-                favorites={favoritesCoins}
-              />
-            }
-          ></Route>
-          <Route
-            path='/crypto/:coinId'
-            element={
-              <CoinDetails
-                favorites={favoritesCoins}
-                onToggleFavorite={onToggleFavorite}
-              />
-            }
-          ></Route>
-          <Route
-            path='/favorites'
-            element={
-              <Favorites
-                onToggleFavorite={onToggleFavorite}
-                toggleDeleteAllCoins={toggleDeleteAllCoins}
-                favorites={favoritesCoins}
-                cryptoCount={cryptoCount}
-              />
-            }
-          ></Route>
-          <Route path='/news' element={<News />}></Route>
-        </Routes>
-      </BrowserRouter>
-    </div>
+    <>
+      <Provider store={store}>
+        <div className='App'>
+          <BrowserRouter>
+            <Navbar />
+            <Routes>
+              <Route
+                path='/'
+                element={
+                  <HomePage
+                    onToggleFavorite={onToggleFavorite}
+                    favorites={favoritesCoins}
+                  />
+                }
+              ></Route>
+              <Route
+                path='/cryptos'
+                element={
+                  <Cryptos
+                    onToggleFavorite={onToggleFavorite}
+                    changeCryptoCount={changeCryptoCount}
+                    cryptoCount={cryptoCount}
+                    favorites={favoritesCoins}
+                  />
+                }
+              ></Route>
+              <Route
+                path='/crypto/:coinId'
+                element={
+                  <CoinDetails
+                    favorites={favoritesCoins}
+                    onToggleFavorite={onToggleFavorite}
+                  />
+                }
+              ></Route>
+              <Route
+                path='/favorites'
+                element={
+                  <Favorites
+                    onToggleFavorite={onToggleFavorite}
+                    toggleDeleteAllCoins={toggleDeleteAllCoins}
+                    favorites={favoritesCoins}
+                    cryptoCount={cryptoCount}
+                  />
+                }
+              ></Route>
+              <Route path='/news' element={<News />}></Route>
+            </Routes>
+          </BrowserRouter>
+        </div>
+      </Provider>
+    </>
   );
 }
 

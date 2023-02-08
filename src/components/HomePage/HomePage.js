@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
 import { COINS_API } from '../../constants';
+import { Link } from 'react-router-dom';
 
 import millify from 'millify';
 
 import './HomePage.css';
 import Cryptos from '../Cryptos/Cryptos';
+import News from '../News/News';
 import Loader from '../Loader';
 
 function HomePage({ favorites, onToggleFavorite }) {
@@ -49,7 +51,7 @@ function HomePage({ favorites, onToggleFavorite }) {
     <>
       {loading && <h1>Loading</h1>}
 
-      <h1 className='global-stats'>The Globall Crypto Market Stats</h1>
+      <h1 className='global-stats'>The Global Crypto Market Stats</h1>
       <div className='market-stats'>
         <div className='market-stats_second-part'>
           <div className='market-stats_info'>
@@ -76,12 +78,32 @@ function HomePage({ favorites, onToggleFavorite }) {
           </div>
         </div>
       </div>
-      <h1>Today's Top 10 Cryptocurrencies In The World of Crypto</h1>
+      <div className='headings'>
+        <h1 className='home-title'>
+          Today's Top 10 Cryptocurrencies In The World of Crypto
+        </h1>
+        <p>
+          <Link className='show-more' to='/cryptos'>
+            Show More
+          </Link>
+        </p>
+      </div>
+
       <Cryptos
         onToggleFavorite={onToggleFavorite}
         favorites={favorites}
         simplified
       />
+      <div className='headings'>
+        <h1 className='home-title'>Hottest Crypto News</h1>
+        <p>
+          <Link className='show-more' to='/news'>
+            Show More
+          </Link>
+        </p>
+      </div>
+
+      <News simplified />
     </>
   );
 }

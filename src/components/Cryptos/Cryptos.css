@@ -23,3 +23,10 @@
 .loader {
   margin: auto auto;
 }
+
+.crypto-list {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}

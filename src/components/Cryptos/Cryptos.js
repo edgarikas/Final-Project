@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { connect } from 'react-redux';
 
 import { Link } from 'react-router-dom';
 import './Cryptos.css';
@@ -15,6 +16,8 @@ function Cryptos({
   favorites,
   changeCryptoCount,
   cryptoCount,
+  favoritesCoins,
+  toggleFavorite,
 }) {
   //const [cryptoCount, setCryptoCount] = useState(100);
   const [data, setData] = useState([]);
@@ -144,4 +147,23 @@ function Cryptos({
   );
 }
 
-export default Cryptos;
+function mapStateToProps(state) {
+  console.log('sss', state.content.favoritesCoins);
+  return {
+    favoritesCoins: state.content.favoritesCoins,
+  };
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+    toggleFavorite: (id, isFavorite) => {
+      if (isFavorite) {
+        dispatch({ type: 'REMOVE_FAVORITES', id });
+      } else {
+        dispatch({ type: 'ADD_FAVORITES', id });
+      }
+    },
+  };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Cryptos);

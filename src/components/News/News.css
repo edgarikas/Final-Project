@@ -1,0 +1,42 @@
+.news-card {
+  min-height: 150px !important;
+}
+
+.news-card p {
+  color: black;
+  margin: 10px 0px !important;
+}
+
+.news-container {
+  display: flex !important;
+  justify-content: space-between !important;
+}
+
+.news-title {
+  width: 70%;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.provider-container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.provider-name {
+  margin-left: 10px;
+}
+
+.news {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 40px;
+}
+
+.newsListCount-select {
+  width: 80px;
+}

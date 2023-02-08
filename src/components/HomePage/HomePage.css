@@ -8,3 +8,23 @@
   margin-top: 20px;
   margin-bottom: 50px;
 }
+
+.headings {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 40px;
+}
+
+.show-more {
+  font-size: 1.3rem !important;
+  text-decoration: none;
+  color: var(--blue);
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.25s;
+}
+
+.show-more:hover {
+  color: var(--true-blue);
+}

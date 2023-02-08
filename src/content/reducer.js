@@ -11,8 +11,22 @@ const INITIAL_STATE = {
 function reducer(state = INITIAL_STATE, action) {
   switch (action.type) {
     case 'REMOVE_FAVORITES': {
-      console.log(state);
-      return { ...state };
+      console.log('lop');
+      const newFavorites = state.favoritesCoins.filter(
+        (id) => id !== action.id
+      );
+      return { ...state, favoritesCoins: newFavorites };
+    }
+    case 'ADD_FAVORITES': {
+      const newFavorites = state.favorites.concat(action.id);
+      window.localStorage.setItem(
+        FAVORITESCOINS_STORAGE_KEY,
+        JSON.stringify(newFavorites)
+      );
+      return {
+        ...state,
+        favoritesCoins: state.favoritesCoins.concat(action.id),
+      };
     }
     default:
       return state;
