@@ -33,7 +33,6 @@ function reducer(state = INITIAL_STATE, action) {
       };
     }
     case TYPES.REMOVE_ALL_CRYPTOS: {
-      console.log('aaaa');
       window.localStorage.removeItem(FAVORITESCOINS_STORAGE_KEY);
       return { ...state, favoritesCoins: [] };
     }

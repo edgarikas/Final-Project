@@ -161,7 +161,7 @@ function CoinDetails({
     }
 
     fetchHistory();
-  }, [fetchData, fetchHistory, coin, data]);
+  }, [fetchData, fetchHistory, coin]);
 
   if (loading) {
     return <Loader />;
@@ -310,15 +310,13 @@ function mapDispatchToProps(dispatch) {
     onLoading: () => {
       dispatch({ type: TYPES.GET_COINS });
     },
-    onSuccess: (payload) => {
-      dispatch({ type: TYPES.GET_COINS_SUCCESS, payload });
-    },
+
     onFailure: () => {
       dispatch({ type: TYPES.GET_COINS_FAILURE });
     },
 
     setCoin: (payload) => {
-      dispatch({ type: TYPES.GET_COINS, payload });
+      dispatch({ type: TYPES.GET_DATA, payload });
     },
     getCoinHistory: (payload) => {
       dispatch({ type: TYPES.GET_COIN_HISTORY, payload });
