@@ -1,5 +1,7 @@
 import { useParams } from 'react-router-dom';
 import millify from 'millify';
+import { connect } from 'react-redux';
+import * as TYPES from '../../content/types';
 import HTMLReactParser from 'html-react-parser';
 import { useCallback, useEffect, useState } from 'react';
 import { Col, Row, Typography, Select } from 'antd';
@@ -21,12 +23,21 @@ import {
 const { Title, Text } = Typography;
 const { Option } = Select;
 
-function CoinDetails({ favorites, onToggleFavorite }) {
+function CoinDetails({
+  favoritesCoins,
+  toggleFavorite,
+  onLoading,
+  onFailure,
+  coins,
+  setCoin,
+  data,
+  loading,
+  error,
+  getCoinHistory,
+  coinHistory,
+}) {
   const { coinId } = useParams();
-  const [loading, setLoading] = useState(false);
-  const [data, setData] = useState([]);
   const [timeperiod, setTimeperiod] = useState('7d');
-  const [coinHistory, setCoinHistory] = useState();
   const options = {
     method: 'GET',
     headers: {
@@ -115,6 +126,8 @@ function CoinDetails({ favorites, onToggleFavorite }) {
     },
   ];
 
+  let coin = coins?.data?.coins.find(({ uuid }) => coinId === uuid);
+
   const fetchHistory = useCallback(async () => {
     try {
       const response = await fetch(COIN_PRICE_HISTORY_API, options);
@@ -122,37 +135,41 @@ function CoinDetails({ favorites, onToggleFavorite }) {
         throw new Error('Failed to load');
       }
       const resultData = await response.json();
-      setCoinHistory(resultData);
+      getCoinHistory(resultData);
     } catch (error) {
-      console.log(error);
+      onFailure();
     }
-  }, [COIN_PRICE_HISTORY_API]);
+  }, [COIN_PRICE_HISTORY_API, getCoinHistory, onFailure]);
 
   const fetchData = useCallback(async () => {
-    setLoading(true);
+    onLoading();
     try {
       const response = await fetch(COIN_API, options);
       if (response.status > 399 && response.status < 600) {
         throw new Error('Failed to load');
       }
       const resultData = await response.json();
-      setData(resultData);
+      setCoin(resultData);
     } catch (error) {
-      console.log(error);
-    } finally {
-      setLoading(false);
+      onFailure();
     }
-  }, [COIN_API]);
+  }, [COIN_API, onLoading, setCoin, onFailure]);
 
   useEffect(() => {
-    fetchData();
+    if (!coin || !data) {
+      fetchData();
+    }
+
     fetchHistory();
-  }, [fetchData, fetchHistory]);
+  }, [fetchData, fetchHistory, coin, data]);
 
   if (loading) {
     return <Loader />;
   }
-
+  if (error) {
+    return <h1>Something is wrong... x)</h1>;
+  }
+  console.log(coin, '->', data);
   return (
     <>
       {cryptoDetails && (
@@ -166,10 +183,12 @@ function CoinDetails({ favorites, onToggleFavorite }) {
               statistics, market cap and supply.
             </p>
             <Button
-              design={favorites.includes(coinId) ? 'outline' : null}
-              onClick={() => onToggleFavorite(coinId)}
+              design={favoritesCoins.includes(coinId) ? 'outline' : null}
+              onClick={() =>
+                toggleFavorite(coinId, favoritesCoins.includes(coinId))
+              }
             >
-              {favorites.includes(coinId)
+              {favoritesCoins.includes(coinId)
                 ? 'Remove From Favorite 🗑️'
                 : 'Add To Favorite ⭐'}
             </Button>
@@ -268,4 +287,43 @@ function CoinDetails({ favorites, onToggleFavorite }) {
   );
 }
 
-export default CoinDetails;
+function mapStateToProps(state) {
+  return {
+    favoritesCoins: state.content.favoritesCoins,
+    loading: state.content.loading,
+    error: state.content.error,
+    coins: state.content.coins,
+    data: state.content.coin,
+    coinHistory: state.content.coinHistory,
+  };
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+    toggleFavorite: (id, isFavorite) => {
+      if (isFavorite) {
+        dispatch({ type: TYPES.REMOVE_ALL_CRYPTOS, id });
+      } else {
+        dispatch({ type: TYPES.ADD_FAVORITE, id });
+      }
+    },
+    onLoading: () => {
+      dispatch({ type: TYPES.GET_COINS });
+    },
+    onSuccess: (payload) => {
+      dispatch({ type: TYPES.GET_COINS_SUCCESS, payload });
+    },
+    onFailure: () => {
+      dispatch({ type: TYPES.GET_COINS_FAILURE });
+    },
+
+    setCoin: (payload) => {
+      dispatch({ type: TYPES.GET_COINS, payload });
+    },
+    getCoinHistory: (payload) => {
+      dispatch({ type: TYPES.GET_COIN_HISTORY, payload });
+    },
+  };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(CoinDetails);

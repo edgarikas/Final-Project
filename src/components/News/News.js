@@ -1,17 +1,31 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Select, Typography, Row, Col, Card } from 'antd';
 import moment from 'moment';
+import { connect } from 'react-redux';
+import * as TYPES from '../../news/types';
 import './News.css';
 import Loader from '../Loader';
 const { Text, Title } = Typography;
 const { Option } = Select;
 const demoImage = 'https://images.radio.com/podcast/3a8503394d.jpg';
 
-function News({ simplified }) {
-  const [news, setNews] = useState();
+function News({
+  simplified,
+  onLoading,
+  onSuccess,
+  onFailure,
+  cryptoNews,
+  loading,
+  error,
+}) {
   const [newsCount, setNewsCount] = useState(simplified ? 12 : 50);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(false);
+  // const options = {
+  //   method: 'GET',
+  //   headers: {
+  //     'X-RapidAPI-Key': 'a4a4a39294msh9694bebf37fe43ap10eae2jsna81abfab4809',
+  //     'X-RapidAPI-Host': 'crypto-news16.p.rapidapi.com',
+  //   },
+  // };
   const options = {
     method: 'GET',
     headers: {
@@ -23,20 +37,18 @@ function News({ simplified }) {
   const NEWS_API = `https://crypto-news16.p.rapidapi.com/news/top/${newsCount}`;
 
   const fetchNews = useCallback(async () => {
-    setLoading(true);
+    onLoading();
     try {
       const response = await fetch(NEWS_API, options);
       if (response.status > 399 && response.status < 600) {
         throw new Error('Failed to load');
       }
       const resultData = await response.json();
-      setNews(resultData);
+      onSuccess(resultData);
     } catch (error) {
-      setError(true);
-    } finally {
-      setLoading(false);
+      onFailure(true);
     }
-  }, [NEWS_API]);
+  }, [NEWS_API, onLoading, onSuccess, onFailure]);
 
   useEffect(() => {
     fetchNews();
@@ -80,7 +92,7 @@ function News({ simplified }) {
       )}
 
       <Row gutter={[24, 24]}>
-        {news?.map((news, i) => (
+        {cryptoNews?.map((news, i) => (
           <Col xs={24} sm={12} lg={8} key={i}>
             <Card hoverable className='news-card'>
               <a href={news.url} target='_blank' rel='noreferrer'>
@@ -96,9 +108,9 @@ function News({ simplified }) {
                 </div>
                 <div className='provider-container'>
                   <div>
-                    <Text className='provider-name'>{news.title}</Text>
+                    <Text className='provider-name'>{cryptoNews.title}</Text>
                   </div>
-                  <Text>{moment(news.date).startOf('ss').fromNow()}</Text>
+                  <Text>{moment(cryptoNews.date).startOf('ss').fromNow()}</Text>
                 </div>
               </a>
             </Card>
@@ -109,4 +121,26 @@ function News({ simplified }) {
   );
 }
 
-export default News;
+function mapStateToProps(state) {
+  return {
+    cryptoNews: state.news.news,
+    loading: state.news.loading,
+    error: state.news.error,
+  };
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+    onLoading: () => {
+      dispatch({ type: TYPES.GET_NEWS });
+    },
+    onSuccess: (payload) => {
+      dispatch({ type: TYPES.GET_NEWS_SUCCESS, payload });
+    },
+    onFailure: () => {
+      dispatch({ type: TYPES.GET_NEWS_FAILURE });
+    },
+  };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(News);

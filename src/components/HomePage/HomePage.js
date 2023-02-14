@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { COINS_API } from '../../constants';
 import { Link } from 'react-router-dom';
-
+import { connect } from 'react-redux';
 import millify from 'millify';
 
 import './HomePage.css';
@@ -9,9 +9,16 @@ import Cryptos from '../Cryptos/Cryptos';
 import News from '../News/News';
 import Loader from '../Loader';
 
-function HomePage({ favorites, onToggleFavorite }) {
-  const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(false);
+function HomePage({
+  onLoadingDone,
+  onLoading,
+  load,
+  onSuccess,
+  onFailure,
+  error,
+  data,
+}) {
+  //const [loading, setLoading] = useState(false);
 
   const globalStats = data?.data?.stats;
 
@@ -24,33 +31,34 @@ function HomePage({ favorites, onToggleFavorite }) {
   };
 
   const fetchData = useCallback(async () => {
-    setLoading(true);
+    onLoading();
     try {
       const response = await fetch(COINS_API, options);
       if (response.status > 399 && response.status < 600) {
         throw new Error('Failed to load');
       }
       const resultData = await response.json();
-      setData(resultData);
+      onSuccess(resultData);
     } catch (error) {
-      console.log(error);
+      onFailure();
     } finally {
-      setLoading(false);
+      onLoadingDone(false);
     }
-  }, []);
+  }, [onSuccess, onFailure, onLoading, onLoadingDone]);
 
   useEffect(() => {
     fetchData();
   }, [fetchData]);
 
-  if (loading) {
+  if (load) {
     return <Loader />;
+  }
+  if (error) {
+    return <h1>Something is wrong... x)</h1>;
   }
 
   return (
     <>
-      {loading && <h1>Loading</h1>}
-
       <h1 className='global-stats'>The Global Crypto Market Stats</h1>
       <div className='market-stats'>
         <div className='market-stats_second-part'>
@@ -89,11 +97,7 @@ function HomePage({ favorites, onToggleFavorite }) {
         </p>
       </div>
 
-      <Cryptos
-        onToggleFavorite={onToggleFavorite}
-        favorites={favorites}
-        simplified
-      />
+      <Cryptos simplified />
       <div className='headings'>
         <h1 className='home-title'>Hottest Crypto News</h1>
         <p>
@@ -108,4 +112,38 @@ function HomePage({ favorites, onToggleFavorite }) {
   );
 }
 
-export default HomePage;
+function mapStateToProps(state) {
+  return {
+    favoritesCoins: state.content.favoritesCoins,
+    load: state.content.homeLoading,
+    error: state.content.error,
+    data: state.content.coins,
+  };
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+    toggleFavorite: (id, isFavorite) => {
+      if (isFavorite) {
+        dispatch({ type: 'REMOVE_FAVORITES', id });
+      } else {
+        dispatch({ type: 'ADD_FAVORITES', id });
+      }
+    },
+
+    onSuccess: (payload) => {
+      dispatch({ type: 'GET_COINS_SUCCESS', payload });
+    },
+    onFailure: () => {
+      dispatch({ type: 'GET_COINS_FAILURE' });
+    },
+    onLoading: () => {
+      dispatch({ type: 'HOME_LOADING' });
+    },
+    onLoadingDone: () => {
+      dispatch({ type: 'HOME_LOADING_DONE' });
+    },
+  };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(HomePage);

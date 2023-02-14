@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
-
+import * as TYPES from '../../content/types';
 import { Link } from 'react-router-dom';
 import './Cryptos.css';
 import Loader from '../Loader';
@@ -12,23 +12,23 @@ const { Option } = Select;
 
 function Cryptos({
   simplified,
-  onToggleFavorite,
-  favorites,
   changeCryptoCount,
   cryptoCount,
   favoritesCoins,
   toggleFavorite,
+  onLoading,
+  onSuccess,
+  onFailure,
+  loading,
+  error,
+  coins,
 }) {
-  //const [cryptoCount, setCryptoCount] = useState(100);
-  const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [cryptoCurrencies, setCryptocurrencies] = useState();
 
   const count = simplified ? 10 : cryptoCount;
 
-  let cryptosListLength = data?.data?.coins.length;
+  let cryptosListLength = coins?.data?.coins.length;
   let cryptosNumberLenght = 2;
 
   const options = {
@@ -41,31 +41,29 @@ function Cryptos({
   const COINS_API = `https://coinranking1.p.rapidapi.com/coins?referenceCurrencyUuid=yhjMzLPhuIDl&timePeriod=24h&tiers%5B0%5D=1&orderBy=marketCap&orderDirection=desc&limit=${count}&offset=0`;
 
   const fetchData = useCallback(async () => {
-    setLoading(true);
+    onLoading();
     try {
       const response = await fetch(COINS_API, options);
       if (response.status > 399 && response.status < 600) {
         throw new Error('Failed to load');
       }
       const resultData = await response.json();
-      setData(resultData);
+      onSuccess(resultData);
     } catch (error) {
-      setError(true);
-    } finally {
-      setLoading(false);
+      onFailure();
     }
-  }, [COINS_API]);
+  }, [COINS_API, onSuccess, onLoading, onFailure]);
 
   useEffect(() => {
     fetchData();
   }, [fetchData]);
 
   useEffect(() => {
-    const filteredData = data?.data?.coins.filter((item) =>
+    const filteredData = coins?.data?.coins.filter((item) =>
       item.name.toLowerCase().includes(searchTerm)
     );
     setCryptocurrencies(filteredData);
-  }, [searchTerm, data]);
+  }, [searchTerm, coins]);
 
   if (loading) {
     return <Loader />;
@@ -74,7 +72,7 @@ function Cryptos({
   if (error) {
     return <h1>Something is wrong.. x)</h1>;
   }
-
+  //console.log(coins?.data?.coins);
   return (
     <>
       {!simplified && (
@@ -134,10 +132,17 @@ function Cryptos({
                 <p>Daily Change: {currency.change}%</p>
               </Link>
               <Button
-                design={favorites.includes(currency.uuid) ? 'outline' : null}
-                onClick={() => onToggleFavorite(currency.uuid)}
+                design={
+                  favoritesCoins.includes(currency.uuid) ? 'outline' : null
+                }
+                onClick={() =>
+                  toggleFavorite(
+                    currency.uuid,
+                    favoritesCoins.includes(currency.uuid)
+                  )
+                }
               >
-                {favorites.includes(currency.uuid) ? 'Remove' : 'Add'}
+                {favoritesCoins.includes(currency.uuid) ? 'Remove' : 'Add'}
               </Button>
             </Card>
           </Col>
@@ -148,9 +153,12 @@ function Cryptos({
 }
 
 function mapStateToProps(state) {
-  console.log('sss', state.content.favoritesCoins);
   return {
     favoritesCoins: state.content.favoritesCoins,
+    cryptoListCount: state.content.cryptoCount,
+    loading: state.content.loading,
+    error: state.content.error,
+    coins: state.content.coins,
   };
 }
 
@@ -158,11 +166,23 @@ function mapDispatchToProps(dispatch) {
   return {
     toggleFavorite: (id, isFavorite) => {
       if (isFavorite) {
-        dispatch({ type: 'REMOVE_FAVORITES', id });
+        dispatch({ type: TYPES.REMOVE_FAVORITE, id });
       } else {
-        dispatch({ type: 'ADD_FAVORITES', id });
+        dispatch({ type: TYPES.ADD_FAVORITE, id });
       }
     },
+    onLoading: () => {
+      dispatch({ type: TYPES.GET_COINS });
+    },
+    onSuccess: (payload) => {
+      dispatch({ type: TYPES.GET_COINS_SUCCESS, payload });
+    },
+    onFailure: () => {
+      dispatch({ type: TYPES.GET_COINS_FAILURE });
+    },
+    // setCryptoCount: (count, simplified) => {
+    //   dispatch({ type: 'SET_CRYPTO_COUNT_LIST', count, simplified });
+    // },
   };
 }
 

@@ -1,7 +1,8 @@
 import React from 'react';
 import { useCallback, useEffect, useState } from 'react';
-
+import { connect } from 'react-redux';
 import './Favorites.css';
+import * as TYPES from '../../content/types';
 import Loader from '../Loader';
 import Button from '../Button/Button';
 import { Link } from 'react-router-dom';
@@ -10,10 +11,10 @@ import { Typography, Card, Row, Col } from 'antd';
 const { Title } = Typography;
 
 function Favorites({
-  favorites,
-  onToggleFavorite,
-  toggleDeleteAllCoins,
   cryptoCount,
+  favoritesCoins,
+  toggleFavorite,
+  deleteAllCryptos,
 }) {
   const [data, setData] = useState([]);
 
@@ -49,7 +50,7 @@ function Favorites({
 
   let coinsList = [];
   data?.data?.coins.forEach((allCoins) => {
-    favorites.forEach((fav) => {
+    favoritesCoins.forEach((fav) => {
       if (allCoins.uuid === fav) {
         coinsList = coinsList.concat(allCoins);
       }
@@ -68,17 +69,17 @@ function Favorites({
         </h1>
       </div>
       <div className='favorite-buttons'>
-        {favorites.length > 0 && (
+        {favoritesCoins.length > 0 && (
           <button
             className='btnForFav deleteAll'
             type='submit'
-            onClick={() => toggleDeleteAllCoins()}
+            onClick={() => deleteAllCryptos()}
           >
             Delete All 🗑️
           </button>
         )}
 
-        {favorites.length === 0 && (
+        {favoritesCoins.length === 0 && (
           <Title level={3} className='show-more'>
             <Link to='/cryptos'>Show Cryptos List</Link>
           </Title>
@@ -114,10 +115,17 @@ function Favorites({
                 <p>Daily Change: {currency.change}%</p>
               </Link>
               <Button
-                design={favorites.includes(currency.uuid) ? 'outline' : null}
-                onClick={() => onToggleFavorite(currency.uuid)}
+                design={
+                  favoritesCoins.includes(currency.uuid) ? 'outline' : null
+                }
+                onClick={() =>
+                  toggleFavorite(
+                    currency.uuid,
+                    favoritesCoins.includes(currency.uuid)
+                  )
+                }
               >
-                {favorites.includes(currency.uuid) ? 'Remove' : 'Add'}
+                {favoritesCoins.includes(currency.uuid) ? 'Remove' : 'Add'}
               </Button>
             </Card>
           </Col>
@@ -127,4 +135,25 @@ function Favorites({
   );
 }
 
-export default Favorites;
+function mapStateToProps(state) {
+  return {
+    favoritesCoins: state.content.favoritesCoins,
+  };
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+    toggleFavorite: (id, isFavorite) => {
+      if (isFavorite) {
+        dispatch({ type: TYPES.REMOVE_FAVORITE, id });
+      } else {
+        dispatch({ type: TYPES.ADD_FAVORITE, id });
+      }
+    },
+    deleteAllCryptos: () => {
+      dispatch({ type: TYPES.REMOVE_ALL_CRYPTOS });
+    },
+  };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Favorites);

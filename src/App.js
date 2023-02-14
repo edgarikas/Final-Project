@@ -11,34 +11,8 @@ import store from './state/state';
 import { Provider } from 'react-redux';
 import { useState } from 'react';
 
-import { FAVORITESCOINS_STORAGE_KEY } from './constants';
-
 function App() {
   const [cryptoCount, setCryptoCount] = useState(100);
-  const [favoritesCoins, setFavoritesCoins] = useState(
-    JSON.parse(window.localStorage.getItem(FAVORITESCOINS_STORAGE_KEY)) || []
-  );
-  const onToggleFavorite = (id) => {
-    let newFavorites = [...favoritesCoins];
-    if (favoritesCoins.includes(id)) {
-      newFavorites = newFavorites.filter((coinId) => coinId !== id);
-    } else {
-      newFavorites = newFavorites.concat(id);
-    }
-    window.localStorage.setItem(
-      FAVORITESCOINS_STORAGE_KEY,
-      JSON.stringify(newFavorites)
-    );
-    setFavoritesCoins(newFavorites);
-  };
-
-  const toggleDeleteAllCoins = () => {
-    window.localStorage.removeItem(FAVORITESCOINS_STORAGE_KEY);
-    setFavoritesCoins(
-      JSON.parse(window.localStorage.getItem(FAVORITESCOINS_STORAGE_KEY)) || []
-    );
-  };
-
   const changeCryptoCount = (count) => {
     setCryptoCount(count);
   };
@@ -50,45 +24,20 @@ function App() {
           <BrowserRouter>
             <Navbar />
             <Routes>
-              <Route
-                path='/'
-                element={
-                  <HomePage
-                    onToggleFavorite={onToggleFavorite}
-                    favorites={favoritesCoins}
-                  />
-                }
-              ></Route>
+              <Route path='/' element={<HomePage />}></Route>
               <Route
                 path='/cryptos'
                 element={
                   <Cryptos
-                    onToggleFavorite={onToggleFavorite}
                     changeCryptoCount={changeCryptoCount}
                     cryptoCount={cryptoCount}
-                    favorites={favoritesCoins}
                   />
                 }
               ></Route>
-              <Route
-                path='/crypto/:coinId'
-                element={
-                  <CoinDetails
-                    favorites={favoritesCoins}
-                    onToggleFavorite={onToggleFavorite}
-                  />
-                }
-              ></Route>
+              <Route path='/crypto/:coinId' element={<CoinDetails />}></Route>
               <Route
                 path='/favorites'
-                element={
-                  <Favorites
-                    onToggleFavorite={onToggleFavorite}
-                    toggleDeleteAllCoins={toggleDeleteAllCoins}
-                    favorites={favoritesCoins}
-                    cryptoCount={cryptoCount}
-                  />
-                }
+                element={<Favorites cryptoCount={cryptoCount} />}
               ></Route>
               <Route path='/news' element={<News />}></Route>
             </Routes>
