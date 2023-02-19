@@ -22,18 +22,12 @@ function reducer(state = INITIAL_STATE, action) {
       return { ...state, favoritesCoins: newFavorites };
     }
     case TYPES.ADD_FAVORITE: {
-      const newFavorites = state.favoritesCoins.concat(action.id);
-      window.localStorage.setItem(
-        FAVORITESCOINS_STORAGE_KEY,
-        JSON.stringify(newFavorites)
-      );
       return {
         ...state,
         favoritesCoins: state.favoritesCoins.concat(action.id),
       };
     }
     case TYPES.REMOVE_ALL_CRYPTOS: {
-      window.localStorage.removeItem(FAVORITESCOINS_STORAGE_KEY);
       return { ...state, favoritesCoins: [] };
     }
 

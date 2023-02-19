@@ -169,7 +169,6 @@ function CoinDetails({
   if (error) {
     return <h1>Something is wrong... x)</h1>;
   }
-  console.log(coin, '->', data);
   return (
     <>
       {cryptoDetails && (

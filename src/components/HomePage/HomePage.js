@@ -1,9 +1,9 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect } from 'react';
 import { COINS_API } from '../../constants';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import millify from 'millify';
-
+import * as TYPES from '../../content/types';
 import './HomePage.css';
 import Cryptos from '../Cryptos/Cryptos';
 import News from '../News/News';
@@ -18,10 +18,7 @@ function HomePage({
   error,
   data,
 }) {
-  //const [loading, setLoading] = useState(false);
-
   const globalStats = data?.data?.stats;
-
   const options = {
     method: 'GET',
     headers: {
@@ -125,23 +122,23 @@ function mapDispatchToProps(dispatch) {
   return {
     toggleFavorite: (id, isFavorite) => {
       if (isFavorite) {
-        dispatch({ type: 'REMOVE_FAVORITES', id });
+        dispatch({ type: TYPES.REMOVE_FAVORITE, id });
       } else {
-        dispatch({ type: 'ADD_FAVORITES', id });
+        dispatch({ type: TYPES.ADD_FAVORITE, id });
       }
     },
 
     onSuccess: (payload) => {
-      dispatch({ type: 'GET_COINS_SUCCESS', payload });
+      dispatch({ type: TYPES.GET_COINS_SUCCESS, payload });
     },
     onFailure: () => {
-      dispatch({ type: 'GET_COINS_FAILURE' });
+      dispatch({ type: TYPES.GET_COINS_FAILURE });
     },
     onLoading: () => {
-      dispatch({ type: 'HOME_LOADING' });
+      dispatch({ type: TYPES.HOME_LOADING });
     },
     onLoadingDone: () => {
-      dispatch({ type: 'HOME_LOADING_DONE' });
+      dispatch({ type: TYPES.HOME_LOADING_DONE });
     },
   };
 }
